@@ -11,4 +11,49 @@
  *
  * See: https://www.gatsbyjs.org/docs/creating-a-local-plugin/#developing-a-local-plugin-that-is-outside-your-project
  */
-exports.onPreInit = () => console.log("Loaded gatsby-starter-plugin")
+
+const axios = require("axios");
+
+exports.onPreInit = () => console.log("Loaded gatsby-starter-plugin");
+
+exports.sourceNodes = async (
+  { actions, createNodeId, createContentDigest },
+  { website, limit }
+) => {
+  const { createNode } = actions;
+
+  const _limit = parseInt(limit || 10000); // FETCH ALL COMMENTS
+  const _website = website || "";
+
+  //   https://gatsbyjs-comment-server.herokuapp.com/comments?limit=${_limit}&website=${_website}
+
+  const result = await axios({
+    url: `https://gatsbyjs-comment-server.herokuapp.com/comments`,
+  });
+
+  const comments = result.data;
+
+  function convertCommentToNode(comment, { createContentDigest, createNode }) {
+    const nodeContent = JSON.stringify(comment);
+
+    const nodeMeta = {
+      id: createNodeId(`comments-${comment._id}`),
+      parent: null,
+      children: [],
+      internal: {
+        type: `ServerComment`,
+        mediaType: `text/html`,
+        content: nodeContent,
+        contentDigest: createContentDigest(comment),
+      },
+    };
+
+    const node = Object.assign({}, comment, nodeMeta);
+    createNode(node);
+  }
+
+  for (let i = 0; i < comments.data.length; i++) {
+    const comment = comments.data[i];
+    convertCommentToNode(comment, { createNode, createContentDigest });
+  }
+};

@@ -1,7 +1,7 @@
 {
-  "name": "gatsby-starter-plugin",
+  "name": "gatsby-source-comment-server",
   "version": "1.0.0",
-  "description": "A minimal boilerplate for the essential files Gatsby looks for in a plugin",
+  "description": "Provides comment source for gatsby blogs",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -9,8 +9,13 @@
   },
   "keywords": [
     "gatsby",
-    "gatsby-plugin"
+    "gatsby-plugin",
+    "gatsby-source-comment-server",
+    "comment"
   ],
   "author": "Kyle Gill <kyle.robert.gill@gmail.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^0.19.2"
+  }
 }
