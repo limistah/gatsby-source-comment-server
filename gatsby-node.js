@@ -38,7 +38,7 @@ exports.sourceNodes = async (
   const _website = website || "";
 
   const result = await axios({
-    url: `https://gatsbyjs-comment-server.herokuapp.com/comments?limit=${_limit}&website=${_website}`,
+    url: `https://gatsbyjs-comment-server.herokuapp.com/comments?website=${_website}`,
   });
 
   const comments = result.data;
@@ -77,7 +77,7 @@ exports.createResolvers = ({ createResolvers }) => {
           return context.nodeModel.runQuery({
             query: {
               filter: {
-                website: { eq: source.fields.slug },
+                slug: { eq: source.fields.slug },
               },
             },
             type: "CommentServer",
