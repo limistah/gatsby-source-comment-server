@@ -14,8 +14,6 @@
 
 const axios = require("axios");
 
-exports.onPreInit = () => console.log("Loaded gatsby-starter-plugin");
-
 exports.sourceNodes = async (
   { actions, createNodeId, createContentDigest },
   { website, limit }
@@ -25,10 +23,8 @@ exports.sourceNodes = async (
   const _limit = parseInt(limit || 10000); // FETCH ALL COMMENTS
   const _website = website || "";
 
-  //   https://gatsbyjs-comment-server.herokuapp.com/comments?limit=${_limit}&website=${_website}
-
   const result = await axios({
-    url: `https://gatsbyjs-comment-server.herokuapp.com/comments`,
+    url: `https://gatsbyjs-comment-server.herokuapp.com/comments?limit=${_limit}&website=${_website}`,
   });
 
   const comments = result.data;
