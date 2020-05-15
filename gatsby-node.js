@@ -11,15 +11,20 @@
  *
  * See: https://www.gatsbyjs.org/docs/creating-a-local-plugin/#developing-a-local-plugin-that-is-outside-your-project
  */
+const axios = require("axios");
 
-exports.sourceNodes = async ({ actions, createNode, createContentDigest }) => {
+exports.sourceNodes = async (
+  { actions, createNodeId, createContentDigest },
+  pluginOptions
+) => {
   const { createTypes } = actions;
   const typeDefs = `
     type CommentServer implements Node {
-      name: String
+      _id: String
       author: String
       string: String
       website: String
+      content: String
       slug: String
       createdAt: Date
       updatedAt: Date
@@ -28,7 +33,7 @@ exports.sourceNodes = async ({ actions, createNode, createContentDigest }) => {
   createTypes(typeDefs);
 
   const { createNode } = actions;
-
+  const { limit, website } = pluginOptions;
   const _limit = parseInt(limit || 10000); // FETCH ALL COMMENTS
   const _website = website || "";
 
@@ -61,4 +66,26 @@ exports.sourceNodes = async ({ actions, createNode, createContentDigest }) => {
     const comment = comments.data[i];
     convertCommentToNode(comment, { createNode, createContentDigest });
   }
+};
+
+exports.createResolvers = ({ createResolvers }) => {
+  const resolvers = {
+    MarkdownRemark: {
+      comments: {
+        type: ["CommentServer"],
+        resolve(source, args, context, info) {
+          return context.nodeModel.runQuery({
+            query: {
+              filter: {
+                website: { eq: source.fields.slug },
+              },
+            },
+            type: "CommentServer",
+            firstOnly: false,
+          });
+        },
+      },
+    },
+  };
+  createResolvers(resolvers);
 };
