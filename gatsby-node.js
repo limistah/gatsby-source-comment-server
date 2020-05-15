@@ -41,7 +41,7 @@ exports.sourceNodes = async (
       parent: null,
       children: [],
       internal: {
-        type: `ServerComment`,
+        type: `CommentServer`,
         mediaType: `text/html`,
         content: nodeContent,
         contentDigest: createContentDigest(comment),
@@ -56,4 +56,26 @@ exports.sourceNodes = async (
     const comment = comments.data[i];
     convertCommentToNode(comment, { createNode, createContentDigest });
   }
+};
+
+exports.createResolvers = ({ createResolvers }) => {
+  const resolvers = {
+    MarkdownRemark: {
+      comments: {
+        type: ["CommentServer"],
+        resolve(source, args, context, info) {
+          return context.nodeModel.runQuery({
+            query: {
+              filter: {
+                website: { eq: source.fields.slug },
+              },
+            },
+            type: "CommentServer",
+            firstOnly: false,
+          });
+        },
+      },
+    },
+  };
+  createResolvers(resolvers);
 };
